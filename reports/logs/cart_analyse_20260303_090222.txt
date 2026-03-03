@@ -1,0 +1,327 @@
+
+====================================================================================================
+1. DATEN LADEN
+====================================================================================================
+
+Datensatz geladen: 50410 Zeilen, 8 Spalten
+
+====================================================================================================
+2. EXPLORATIVE DATENANALYSE (EDA)
+====================================================================================================
+
+====================================================================================================
+2.1 DATENQUALITÄT
+====================================================================================================
+
+Zeitraum:
+  2019-01-01 00:01:11 bis 2019-02-28 23:48:19
+
+Dauer:
+  58 Tage
+
+Fehlende Werte pro Spalte:
+            Anzahl_Missing  Prozent_Missing        Datentyp
+Unnamed: 0               0              0.0           int64
+tmsp                     0              0.0  datetime64[ns]
+country                  0              0.0          object
+amount                   0              0.0           int64
+success                  0              0.0           int64
+PSP                      0              0.0          object
+3D_secured               0              0.0           int64
+card                     0              0.0          object
+
+====================================================================================================
+2.2 DUPLIKATE
+====================================================================================================
+
+Exakte Duplikate (alle Spalten identisch): 0
+
+Kaufversuche (id. Betrag, Land, Karte, innerhalb 10 min): 27,292
+  - Einzelversuche:   14,965 (54.8%)
+  - Mehrfachversuche: 12,327 (45.2%)
+
+====================================================================================================
+2.3 DATENTYPEN UND WERTEBEREICHE
+====================================================================================================
+
+Datentypen inkl. Kaufversuch (purchase_group) und Hilfsvariablen:
+Unnamed: 0                  int64
+tmsp               datetime64[ns]
+country                    object
+amount                      int64
+success                     int64
+PSP                        object
+3D_secured                  int64
+card                       object
+transaction_key            object
+new_group                    bool
+group_id                    int64
+purchase_group             object
+dtype: object
+
+--- KATEGORIELLE VARIABLEN ---
+
+country: 3 Werte
+  Werte: ['Austria', 'Germany', 'Switzerland']
+  Verteilung: [30233 10338  9839]
+
+PSP: 4 Werte
+  Werte: ['Goldcard', 'Moneycard', 'Simplecard', 'UK_Card']
+  Verteilung: [26459 12446  8297  3208]
+
+card: 3 Werte
+  Werte: ['Diners', 'Master', 'Visa']
+  Verteilung: [29002 11640  9768]
+
+--- BINÄRE VARIABLEN ---
+
+success
+0    40182
+1    10228
+
+3D_secured
+0    38399
+1    12011
+
+--- NUMERISCHE VARIABLE ---
+
+amount (Betrag):
+  Min: 6
+  Max: 630
+  Median: 201.0
+  Mean: 202.40
+  Std: 96.27
+
+Quantile (Betrag):
+      5%:      42 €
+     10%:      73 €
+     25%:     133 €
+     50%:     201 €
+     75%:     269 €
+     90%:     329 €
+     95%:     365 €
+
+====================================================================================================
+2.4 ERFOLGSRATEN AUF TRANSAKTIONSEBENE NACH KATEGORIEN
+====================================================================================================
+
+--- Nach PSP ---
+            Anzahl  Erfolge  Erfolgsrate
+PSP                                     
+Goldcard      3208     1303       0.4062
+Moneycard     8297     1815       0.2188
+UK_Card      26459     5142       0.1943
+Simplecard   12446     1968       0.1581
+
+--- Nach Land ---
+             Anzahl  Erfolge  Erfolgsrate
+country                                  
+Austria        9839     2013       0.2046
+Germany       30233     6088       0.2014
+Switzerland   10338     2127       0.2057
+
+--- Nach Kartentyp ---
+        Anzahl  Erfolge  Erfolgsrate
+card                                
+Diners    9768     2178       0.2230
+Master   29002     5623       0.1939
+Visa     11640     2427       0.2085
+
+--- Nach 3D-Secure Status ---
+                 Anzahl  Erfolge  Erfolgsrate
+Nicht gesichert   38399     7279       0.1896
+Gesichert         12011     2949       0.2455
+
+====================================================================================================
+2.5 ZEITLICHE MUSTER AUF TRANSAKTIONSEBENE
+====================================================================================================
+
+--- Nach Stunde ---
+      Anzahl  Erfolgsrate
+hour                     
+17      2124       0.2382
+16      2155       0.2339
+18      2036       0.2313
+14      2059       0.2273
+15      2106       0.2260
+13      2138       0.2236
+8       2066       0.2081
+6       2065       0.2029
+23      2087       0.2022
+1       2093       0.2016
+11      2100       0.2014
+4       2032       0.2003
+2       2131       0.1971
+9       2078       0.1968
+5       2132       0.1951
+10      2143       0.1941
+19      2067       0.1921
+7       2085       0.1894
+3       2185       0.1876
+0       2078       0.1867
+21      2125       0.1854
+20      2180       0.1853
+12      2092       0.1850
+22      2053       0.1783
+
+--- Nach Wochentag ---
+            Anzahl  Erfolgsrate
+Montag        7304       0.2011
+Dienstag      8663       0.1878
+Mittwoch      8195       0.1959
+Donnerstag    7796       0.1995
+Freitag       6899       0.1986
+Samstag       6234       0.2243
+Sonntag       5319       0.2264
+
+--- Wochenende vs. Wochentag ---
+            Anzahl  Erfolgsrate
+Wochentag    38857       0.1963
+Wochenende   11553       0.2252
+
+====================================================================================================
+2.6 INTERAKTIONSEFFEKTE AUF TRANSAKTIONSEBENE
+====================================================================================================
+
+--- PSP × 3D_secured ---
+                       Anzahl  Erfolgsrate
+PSP        3D_secured                     
+Goldcard   0             2427       0.3490
+           1              781       0.5839
+Moneycard  0             6305       0.2102
+           1             1992       0.2460
+Simplecard 0             9478       0.1472
+           1             2968       0.1931
+UK_Card    0            20189       0.1839
+           1             6270       0.2281
+
+--- PSP × Kartentyp ---
+                   Anzahl  Erfolgsrate
+PSP        card                       
+Goldcard   Diners     670       0.4284
+           Master    1763       0.4039
+           Visa       775       0.3923
+Moneycard  Diners    1667       0.2747
+           Master    4765       0.2298
+           Visa      1865       0.1405
+Simplecard Diners    2356       0.2275
+           Master    7245       0.1166
+           Visa      2845       0.2063
+UK_Card    Diners    5075       0.1767
+           Master   15229       0.1951
+           Visa      6155       0.2070
+
+--- PSP × Land ---
+                        Anzahl  Erfolgsrate
+PSP        country                         
+Goldcard   Austria         583       0.4254
+           Germany        1939       0.3940
+           Switzerland     686       0.4242
+Moneycard  Austria        1654       0.2225
+           Germany        4960       0.2129
+           Switzerland    1683       0.2323
+Simplecard Austria        2414       0.1587
+           Germany        7431       0.1593
+           Switzerland    2601       0.1542
+UK_Card    Austria        5188       0.1955
+           Germany       15903       0.1939
+           Switzerland    5368       0.1945
+
+====================================================================================================
+2.7 MERKMALSVARIABLEN
+====================================================================================================
+
+Anzahl Features: 22
+
+--- Originale Features (aus Rohdaten) ---
+  amount                         Transaktionsbetrag (€)
+  3D_secured                     3D-Secure aktiviert (0/1)
+
+--- Zeitfeatures (abgeleitet aus tmsp) ---
+  hour                           Stunde (0-23)
+  day_of_week                    Wochentag (0=Mo, 6=So)
+  day_of_month                   Tag im Monat (1-31)
+
+--- One-Hot-Kodierung Tag/Zeit (abgeleitet aus tmsp) ---
+  is_weekend                     Wochenende (Sa/So = 1)
+  is_night                       Nacht (0-5 Uhr = 1)
+  is_morning                     Morgen (6-11 Uhr = 1)
+  is_afternoon                   Nachmittag (12-17 Uhr = 1)
+  is_evening                     Abend (18-23 Uhr = 1)
+
+--- One-Hot-Kodierung Länder (abgeleitet aus country) ---
+  in_germany                     Land = Germany (1/0)
+  in_austria                     Land = Austria (1/0)
+  in_switzerland                 Land = Switzerland (1/0)
+
+--- One-Hot-Kodierung Karten (abgeleitet aus card) ---
+  is_visa                        Karte = Visa (1/0)
+  is_master                      Karte = Master (1/0)
+  is_diners                      Karte = Diners (1/0)
+
+--- Sequenz-Features (abgeleitet aus purchase_group) ---
+  n_previous_attempts            Anzahl bisheriger Versuche in dieser Gruppe
+  n_previous_failures            Anzahl bisheriger Fehlschläge in dieser Gruppe
+  tried_<PSP>                    Anzahl bisheriger Versuche bei jeweiligem PSP
+
+====================================================================================================
+2.8 EDA GRAFIKEN AUF TRANSAKTIONSEBENE
+====================================================================================================
+
+Korrelationsmatrix: C:\Users\samis\OneDrive - IU International University of Applied Sciences\Dokumente\Master IU Data Science\Model Engineering\Code\reports\figures\cart_eda_korrelationsmatrix.png
+
+EDA-Plots: C:\Users\samis\OneDrive - IU International University of Applied Sciences\Dokumente\Master IU Data Science\Model Engineering\Code\reports\figures\cart_eda_plots.png
+
+====================================================================================================
+3. CART ANALYSE
+====================================================================================================
+
+====================================================================================================
+3.1 BUSINESS VALUE PARAMETER
+====================================================================================================
+
+Mittlerer Warenkorbwert: 200.00€
+Gewinnmarge:               5.0%
+Gewinn pro Erfolg:        10.00€
+Opportunitätskosten:       3.0%
+
+====================================================================================================
+3.2 TRAIN-TEST SPLIT
+====================================================================================================
+
+Anteil Testdaten am Gesamtdatensatz: 20%
+
+Transaktionen:
+  Train: 40,489
+  Test:  9,921
+
+Purchase Groups:
+  Train: 21,833
+  Test:  5,459
+
+Erfolgsrate (Transaktionsebene):
+  Train: 20.21%
+  Test:  20.62%
+
+Erfolgsrate (Gruppenebene):
+  Train: 37.44%
+  Test:  37.44%
+
+====================================================================================================
+3.3 HYPERPARAMETER-TUNING PRO PSP
+====================================================================================================
+
+Parameter-Grid:
+  max_depth           : [3, 4, 5, 6]
+  min_samples_leaf    : [20, 40, 80, 160]
+  min_samples_split   : [50, 100, 200, 400]
+  class_weight        : ['balanced']
+
+Kombinationen pro PSP: 64
+Stratifizierte Kreuzvalidierung: 5-fach
+Geschätzte Durchläufe gesamt: 1,280
+
+====================================================================================================
+GRID SEARCH FÜR: Moneycard
+====================================================================================================
+  6,638 Transaktionen für Moneycard
