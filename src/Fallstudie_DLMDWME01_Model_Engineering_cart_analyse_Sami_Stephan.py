@@ -4,7 +4,7 @@ CART-Prognosemodell und Vergleich zu Baseline
 ===========================================================================
 Autor:   Sami Stephan
 
-Datum:   19.02.2026
+Datum:   25.03.2026
 
 Ziel:    Trainiert CART-Modelle pro PSP und führt sequenzielle
          Business Value Evaluation durch.
@@ -14,6 +14,7 @@ Input:   PSP_Jan_Feb_2019.xlsx   (Rohdaten)
 Output:  cart_analyse_{timestamp}.txt
          cart_eda_plots.png
          cart_eda_korrelationsmatrix.png
+         cart_psp_data_with_features.csv
          cart_hyperparameter_tuning_{psp_name}.png
          cart_tree_{psp_name}.png
          cart_evaluation_psp_recommender_cal.png
@@ -68,7 +69,7 @@ PROFIT_MARGIN        = 0.05
 # Daraus berechneter mittlerer Gewinn bei erfolgreicher Transaktion
 REVENUE_PER_SUCCESS  = AVERAGE_BASKET_VALUE * PROFIT_MARGIN
 # Opportunitätskosten für Fehlschlag als Anteil am Warenkorbwert
-C_OPPORT             = 0.03
+C_OPPORT             = 0.04
 # aus Baseline-Daten ermittele maximale Anzahl an Versuchen
 MAX_ATTEMPTS         = 10     
 # PSP-Gebühren
@@ -145,7 +146,6 @@ print("\n" + "=" * 100)
 print("1. DATEN LADEN")
 print("=" * 100)
 
-# Angepasst auf DATA_RAW_DIR
 df = pd.read_excel(os.path.join(DATA_RAW_DIR,'PSP_Jan_Feb_2019.xlsx'))
 df = df.sort_values('tmsp').reset_index(drop=True)
 
@@ -456,6 +456,10 @@ for psp in PSP_LIST:
         lambda x: (x.shift(1) == psp).cumsum()
     ).values
 
+# Speichere verarbeiteten Datensatz
+df.to_csv(os.path.join(DATA_PROC_DIR,'cart_psp_data_with_features.csv'), index=False, sep=';', decimal=',')
+print("\nDatensatz mit Features gespeichert: psp_data_with_features.csv")
+
 # =============================================================================
 # 2.8 EDA GRAFIKEN AUF TRANSAKTIONSEBENE
 # =============================================================================
@@ -480,7 +484,6 @@ sns.heatmap(corr_matrix, annot=True, fmt='.3f', cmap='coolwarm', center=0,
             square=True, linewidths=1, annot_kws={"size": 8}, cbar_kws={"shrink": 0.8})
 
 plt.tight_layout()
-# Angepasst auf REPORTS_FIG_DIR
 plot_path_corr = os.path.join(REPORTS_FIG_DIR, 'cart_eda_korrelationsmatrix.png')
 plt.savefig(plot_path_corr, dpi=300, bbox_inches='tight')
 print(f"\nKorrelationsmatrix: {plot_path_corr}")
@@ -707,7 +710,6 @@ fig.suptitle('PSP-Datenanalyse: Explorative Plots',
              fontsize=16, fontweight='bold', y=0.995)
 
 plt.tight_layout()
-# Angepasst auf REPORTS_FIG_DIR
 plot_path_EDA = os.path.join(REPORTS_FIG_DIR, 'cart_eda_plots.png')
 plt.savefig(plot_path_EDA, dpi=300, bbox_inches='tight')
 print(f"\nEDA-Plots: {plot_path_EDA}")
@@ -951,7 +953,7 @@ for psp_name in PSP_LIST:
               f"{int(row['min_samples_split']):>9d} {row['cv_auc_mean']:>8.4f} {row['cv_auc_se']:>5.4f} "
               f"{train_str:>10s} {of_str:>8s} {int(row['n_leaves']):>8d}")
     
-    # Speichere CSV für diesen PSP (Angepasst auf REPORTS_RES_DIR)
+    # Speichere CSV für diesen PSP
     csv_path = os.path.join(REPORTS_RES_DIR, f'cart_hyperparameter_results_{psp_name}.csv')
     df_results.to_csv(csv_path, index=False, sep=';', decimal=',')
     print(f"\n  CSV: {csv_path}")
@@ -1064,7 +1066,6 @@ for psp_name in PSP_LIST:
     plt.suptitle(f'CART Hyperparameter-Tuning: {psp_name}', fontsize=14, fontweight='bold')
     plt.tight_layout()
     
-    # Angepasst auf REPORTS_FIG_DIR
     plot_path = os.path.join(REPORTS_FIG_DIR, f'cart_hyperparameter_tuning_{psp_name}.png')
     plt.savefig(plot_path, dpi=150, bbox_inches='tight')
     print(f"  Plot: {plot_path}")
@@ -1119,12 +1120,10 @@ for psp_name, df_res in all_psp_results.items():
 
 if all_results_combined:
     df_train_results = pd.concat(all_results_combined, ignore_index=True)
-    # Angepasst auf REPORTS_RES_DIR
     combined_csv_path = os.path.join(REPORTS_RES_DIR, f'cart_hyperparameter_results.csv')
     df_train_results.to_csv(combined_csv_path, index=False, sep=';', decimal=',')
     print(f"\nKombinierte CSV: {combined_csv_path}")
 
-# Angepasst auf MODELS_DIR
 best_params_path = os.path.join(MODELS_DIR, f'cart_best_params_per_psp.pkl')
 with open(best_params_path, 'wb') as f:
     pickle.dump(best_params_per_psp, f)
@@ -1181,7 +1180,7 @@ for psp_name in PSP_LIST:
 print(f"\nKalibrierungsmethode: {CALIB_METH}")
 print(f"Anzahl trainierte Modelle: {len(cart_models)}")
 
-# Speichere kalibrierte Modelle (Angepasst auf MODELS_DIR)
+# Speichere kalibrierte Modelle
 model_path = os.path.join(MODELS_DIR, 'cart_psp_recommender_cal.pkl')
 with open(model_path, 'wb') as f:
     pickle.dump(cart_models, f)
@@ -1221,7 +1220,6 @@ for psp_name in PSP_LIST:
                  f'leaf={bp["min_samples_leaf"]}, split={bp["min_samples_split"]})',
                  fontsize=16, fontweight='bold')
     
-    # Angepasst auf REPORTS_FIG_DIR
     tree_path = os.path.join(REPORTS_FIG_DIR, f'cart_tree_{psp_name}.png')
     plt.savefig(tree_path, dpi=150, bbox_inches='tight')
     plt.close()
@@ -1467,7 +1465,7 @@ print(f"  Echte Outcomes:      {n_real_outcomes:,} ({n_real_outcomes/total_outco
 print(f"  Simulierte Outcomes: {n_simulated_outcomes:,} ({n_simulated_outcomes/total_outcomes*100:.1f}%)")
 print(f"  Total Outcomes:      {total_outcomes:,}")
 
-# Speichere CART-Ergebnisse (Angepasst auf REPORTS_RES_DIR)
+# Speichere CART-Ergebnisse
 cart_results_path = os.path.join(REPORTS_RES_DIR, 'cart_results_psp_recommender_cal.csv')
 df_cart.to_csv(cart_results_path, index=False, sep=';', decimal=',')
 print(f"\nCART-Ergebnisse in CSV-Datei abgelegt:")
@@ -1547,7 +1545,7 @@ for bar, cost in zip(bars, costs_comp):
            f'{cost:.2f}€', ha='center', va='bottom', fontweight='bold', fontsize=11)
 ax.set_ylabel('Ø Kosten (€)', fontweight='bold')
 ax.set_title('Durchschnittliche Kosten: Baseline vs CART', fontweight='bold', fontsize=11)
-ax.set_ylim(0, 3.5)
+ax.set_ylim(0, 4)
 ax.set_xticks(x_comp)
 ax.set_xticklabels(['Baseline', 'CART'])
 ax.grid(True, alpha=0.3, axis='y')
@@ -1609,7 +1607,6 @@ plt.suptitle(f'Sequenzielle Evaluation - CART Modell (Opportunitätskosten: {C_O
 
 plt.tight_layout()
 
-# Angepasst auf REPORTS_FIG_DIR
 plot_path = os.path.join(REPORTS_FIG_DIR, 'cart_evaluation_psp_recommender_cal.png')
 plt.savefig(plot_path, dpi=150, bbox_inches='tight')
 print(f"\nGrafische Darstellung der Ergebnisse:")
@@ -1755,7 +1752,6 @@ plt.suptitle('Sensitivitätsanalyse: Einfluss der Opportunitätskosten',
              fontsize=13, fontweight='bold')
 plt.tight_layout()
 
-# Angepasst auf REPORTS_FIG_DIR
 sens_plot_path = os.path.join(REPORTS_FIG_DIR, f'cart_sensitivity_opport.png')
 plt.savefig(sens_plot_path, dpi=150, bbox_inches='tight')
 plt.close()
